@@ -51,7 +51,7 @@ reutilizarla tanto en server actions como en cualquier otra capa futura.
 
 > El detalle completo de decisiones de arquitectura, modelo de datos
 > y fases de implementación está documentado en
-> [`docs/superpowers/specs/design.md`](./docs/superpowers/specs/design.md)
+> [`docs/design.md`](./docs/design.md)
 
 ## Estructura del proyecto
 
@@ -233,6 +233,6 @@ funcionando con datos realistas sin cargar nada a mano. -->
 
 ## Documentación adicional
 
-- [`docs/superpowers/specs/design.md`](./docs/superpowers/specs/design.md) — documento de diseño y
+- [`docs/design.md`](./docs/design.md) — documento de diseño y
   arquitectura detallado, con el modelo de datos completo, las fases
   de implementación y las decisiones técnicas justificadas.
