@@ -1,6 +1,3 @@
-<<<<<<< HEAD
-# challenge-tecnico-aranguriapps
-=======
 # SaaS-Track
 
 <!-- [TODO - Etapa 8] Reemplazar TU_USUARIO/TU_REPO por los reales y descomentar
@@ -239,4 +236,3 @@ funcionando con datos realistas sin cargar nada a mano. -->
 - [`docs/superpowers/specs/design.md`](./docs/superpowers/specs/design.md) — documento de diseño y
   arquitectura detallado, con el modelo de datos completo, las fases
   de implementación y las decisiones técnicas justificadas.
->>>>>>> 8334036 (docs: define especificacion inicial de SaaS-Track)
