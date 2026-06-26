@@ -118,3 +118,12 @@ INSERT INTO categories (nombre, color) VALUES
   ('Bienestar', '#10B981'),
   ('Software', '#F59E0B'),
   ('Entretenimiento', '#EC4899');
+
+
+-- Grants
+
+GRANT SELECT ON TABLE categories TO authenticated;
+
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE subscriptions TO authenticated;
+
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE billing_history TO authenticated;
