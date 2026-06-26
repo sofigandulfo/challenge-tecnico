@@ -18,3 +18,11 @@
 - Generó bien: estructura de funciones puras sin dependencias externas, CI con checkout/Node 20/lint/test, configuración de vitest.config.ts
 - Tuve que corregir: los tests originales solo verificaban "es una fecha futura" con Date.now(), lo cual no detectaría bugs en el cálculo real. Los reescribí usando vi.setSystemTime() para fijar una fecha conocida y verificar el resultado exacto esperado. Por ejemplo, dado hoy 15/03/2025 y fecha inicio 01/01/2025 mensual, el resultado debe ser exactamente 01/04/2025
 - 9/9 tests pasando en verde
+
+## Etapa 3 — Dashboard con datos reales
+
+- Pedí: queries server-side para obtener suscripciones y próximos vencimientos, funciones puras de cálculo, componentes de presentación (KPI, gráfico, próximos vencimientos y estado vacío), integración con Supabase y tests unitarios.
+- Generó bien: buena separación entre queries, lógica de negocio y componentes; dashboard implementado como Server Component; funciones puras reutilizando `normalizarAMensual`; tests unitarios para los cálculos con casos borde.
+- Tuve que corregir: al integrar el dashboard apareció un error `permission denied for table subscriptions`. El problema no estaba en el código generado sino en el esquema SQL: la migración habilitaba RLS y creaba las policies, pero faltaban los `GRANT` para el rol `authenticated`. Agregué los `GRANT` correspondientes a la migración para que el proyecto pueda recrearse correctamente desde cero.
+- Verifiqué manualmente: cargué datos de prueba en Supabase y confirmé que el KPI, el gráfico por categorías, los próximos vencimientos y el estado vacío funcionan con datos reales.
+- Mejora pendiente: `DonutChart` de Tremor utiliza nombres de la paleta de Tailwind para la prop `colors`, mientras que las categorías almacenan colores hexadecimales en la base. El gráfico funciona correctamente, pero el mapeo entre ambos formatos quedó identificado como una mejora visual para una etapa posterior.

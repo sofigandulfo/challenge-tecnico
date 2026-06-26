@@ -6,8 +6,10 @@ const config = {
   content: [
     "./src/app/**/*.{ts,tsx}",
     "./src/components/**/*.{ts,tsx}",
+    "./src/features/**/*.{ts,tsx}",
     "./src/lib/**/*.{ts,tsx}",
     "./src/types/**/*.{ts,tsx}",
+    "./node_modules/@tremor/react/dist/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
     extend: {
