@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import Link from "next/link";
 
 import { signOut } from "@/app/dashboard/actions";
 import { Button } from "@/components/ui/button";
@@ -25,6 +26,14 @@ export default async function DashboardLayout({
           <span className="text-sm font-medium">SaaS-Track</span>
 
           <div className="flex items-center gap-4">
+            <nav className="flex items-center gap-3 text-sm">
+              <Link href="/dashboard" className="text-muted-foreground hover:text-foreground">
+                Dashboard
+              </Link>
+              <Link href="/dashboard/subscriptions" className="text-muted-foreground hover:text-foreground">
+                Suscripciones
+              </Link>
+            </nav>
             <span className="text-sm text-muted-foreground">{user.email}</span>
             <form action={signOut}>
               <Button type="submit" variant="outline" size="sm">

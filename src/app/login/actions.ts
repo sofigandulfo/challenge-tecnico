@@ -1,6 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { headers } from "next/headers";
 
 import { mapAuthError } from "@/lib/auth-errors";
 import { createClient } from "@/lib/supabase/server";
@@ -19,6 +20,26 @@ function validateCredentials(
   }
 
   return null;
+}
+
+function getAuthCallbackUrl(): string {
+  const configuredSiteUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim();
+  if (configuredSiteUrl) {
+    return `${configuredSiteUrl.replace(/\/$/, "")}/auth/callback`;
+  }
+
+  const requestHeaders = headers();
+  const origin = requestHeaders.get("origin");
+  if (origin) {
+    return `${origin.replace(/\/$/, "")}/auth/callback`;
+  }
+
+  const host = requestHeaders.get("host");
+  if (host) {
+    return `https://${host}/auth/callback`;
+  }
+
+  return "/auth/callback";
 }
 
 export async function signIn(
@@ -62,6 +83,9 @@ export async function signUp(
   const { data, error } = await supabase.auth.signUp({
     email: email.trim(),
     password,
+    options: {
+      emailRedirectTo: getAuthCallbackUrl(),
+    },
   });
 
   if (error) {
