@@ -26,3 +26,50 @@
 - Tuve que corregir: al integrar el dashboard apareció un error `permission denied for table subscriptions`. El problema no estaba en el código generado sino en el esquema SQL: la migración habilitaba RLS y creaba las policies, pero faltaban los `GRANT` para el rol `authenticated`. Agregué los `GRANT` correspondientes a la migración para que el proyecto pueda recrearse correctamente desde cero.
 - Verifiqué manualmente: cargué datos de prueba en Supabase y confirmé que el KPI, el gráfico por categorías, los próximos vencimientos y el estado vacío funcionan con datos reales.
 - Mejora pendiente: `DonutChart` de Tremor utiliza nombres de la paleta de Tailwind para la prop `colors`, mientras que las categorías almacenan colores hexadecimales en la base. El gráfico funciona correctamente, pero el mapeo entre ambos formatos quedó identificado como una mejora visual para una etapa posterior.
+
+## Etapa 4 — CRUD de suscripciones
+
+- Pedí: queries de lectura, server actions (crear/editar/cambiar estado/eliminar),
+  pantalla con tabla, búsqueda, filtros y formulario reutilizable para alta y edición.
+- Generó bien: separación clara entre queries/actions/UI, reutilización de
+  calcularProximoCobro() sin duplicar lógica, validaciones de formulario,
+  AlertDialog de confirmación antes de eliminar, ActionResult consistente en
+  las 4 acciones.
+- Tuve que corregir (UI rota): el modal de "Nueva suscripción" se veía sin
+  overlay oscuro de fondo y con el contenido transparente mezclado con la
+  tabla detrás. Mismo origen que el problema de Tabs en la Etapa 1: sintaxis
+  de Tailwind v4 en el componente Dialog generado, incompatible con v3
+  instalado. Corregido migrando las clases de variantes a sintaxis v3 con
+  corchetes y agregando background sólido + z-index correcto al
+  DialogContent/DialogOverlay.
+- Tuve que corregir (regresión de auth): el problema de la ruta /auth/callback
+  que ya había aparecido en la Etapa 1 volvió a manifestarse — un usuario
+  registrado de nuevo terminaba en /?code=... en lugar de /dashboard, y al
+  intentar leer subscriptions sin sesión real recibía
+  "permission denied for table subscriptions" (Postgres trataba la request
+  como rol anon, no authenticated). Confirmé que la ruta Route Handler
+  para exchangeCodeForSession() faltaba en el código actual y la agregué,
+  apuntando la redirectTo de signUp() a esa ruta.
+- Tuve que corregir (performance/UX): la búsqueda en la tabla de suscripciones
+  estaba implementada disparando una Server Action en cada tecla escrita
+  (confirmado en los logs del servidor: decenas de POST /dashboard/subscriptions
+  consecutivos), lo cual generaba un salto visible de layout mientras se
+  tipeaba. La instrucción original pedía filtrado client-side; lo corregí
+  moviendo el filtro a un useState + .filter() sobre los datos ya cargados,
+  sin ningún request adicional al servidor.
+- Tuve que corregir (warnings de React): "Function components cannot be given
+  refs" en Button y luego en DialogOverlay al usarse con asChild dentro de
+  Dialog/AlertDialog (Radix necesita pasar refs a través de Slot). En vez de
+  parchear componente por componente cada vez que aparecía el warning en una
+  pantalla nueva, pedí una revisión completa de todos los componentes en
+  src/components/ui/ que usan Slot/asChild, envolviéndolos en
+  React.forwardRef de forma consistente.
+- Verifiqué manualmente: CRUD completo de punta a punta (crear, editar,
+  pausar, reactivar, cancelar, eliminar), validaciones de formulario
+  (nombre vacío, costo negativo, fecha vacía), búsqueda y filtros combinados,
+  y consistencia entre la tabla de suscripciones y los cálculos del dashboard
+  (el gasto mensual excluye correctamente las pausadas/canceladas).
+- Verifiqué seguridad: registré un segundo usuario y confirmé que no puede
+  ver ni modificar las suscripciones del primero, ni crear las propias se
+  mezcla con las del otro usuario. RLS aislando correctamente por
+  auth.uid() en ambos sentidos.
