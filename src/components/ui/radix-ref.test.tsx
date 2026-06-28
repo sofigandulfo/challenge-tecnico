@@ -74,6 +74,10 @@ describe('Radix ui wrappers', () => {
     expect(contentRef.current).toBeInstanceOf(HTMLDivElement);
     expect(titleRef.current).toBeInstanceOf(HTMLHeadingElement);
     expect(descriptionRef.current).toBeInstanceOf(HTMLParagraphElement);
+    expect(document.querySelector('.bg-black\\/50')).not.toBeNull();
+    expect(contentRef.current?.classList.contains('z-[60]')).toBe(true);
+    expect(contentRef.current?.classList.contains('bg-white')).toBe(true);
+    expect(contentRef.current?.classList.contains('p-6')).toBe(true);
 
     view.unmount();
   });
