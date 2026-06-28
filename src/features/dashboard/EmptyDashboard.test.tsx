@@ -1,14 +1,20 @@
 import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
+
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({ refresh: vi.fn() }),
+}));
 
 import { EmptyDashboard } from './EmptyDashboard';
 
 describe('EmptyDashboard', () => {
-  it('muestra mensaje de estado vacio y boton placeholder', () => {
+  it('muestra mensaje de estado vacio y acciones para crear o cargar ejemplo', () => {
     const html = renderToStaticMarkup(createElement(EmptyDashboard));
 
     expect(html).toContain('Todavia no hay suscripciones');
+    expect(html).toContain('Agregar suscripción');
+    expect(html).toContain('href="/dashboard/subscriptions"');
     expect(html).toContain('Cargar datos de ejemplo');
     expect(html).toContain('type="button"');
   });

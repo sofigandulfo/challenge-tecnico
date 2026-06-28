@@ -1,5 +1,9 @@
+import Link from 'next/link';
+import { Plus } from 'lucide-react';
+
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { SampleDataButton } from './SampleDataButton';
 
 export function EmptyDashboard() {
   return (
@@ -12,9 +16,15 @@ export function EmptyDashboard() {
             categoria y los proximos cobros.
           </p>
         </div>
-        <Button type="button" variant="secondary">
-          Cargar datos de ejemplo
-        </Button>
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start">
+          <Button asChild>
+            <Link href="/dashboard/subscriptions">
+              <Plus className="size-4" />
+              Agregar suscripción
+            </Link>
+          </Button>
+          <SampleDataButton />
+        </div>
       </CardContent>
     </Card>
   );

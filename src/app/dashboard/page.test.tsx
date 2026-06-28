@@ -14,6 +14,10 @@ vi.mock('@/lib/supabase/server', () => ({
   createClient: mocks.createClient,
 }));
 
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({ refresh: vi.fn() }),
+}));
+
 vi.mock('@/features/dashboard/queries', () => ({
   getSubscriptions: mocks.getSubscriptions,
   getUpcomingSubscriptions: mocks.getUpcomingSubscriptions,
