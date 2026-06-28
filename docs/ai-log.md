@@ -27,7 +27,7 @@
 - Verifiqué manualmente: cargué datos de prueba en Supabase y confirmé que el KPI, el gráfico por categorías, los próximos vencimientos y el estado vacío funcionan con datos reales.
 - Mejora pendiente: `DonutChart` de Tremor utiliza nombres de la paleta de Tailwind para la prop `colors`, mientras que las categorías almacenan colores hexadecimales en la base. El gráfico funciona correctamente, pero el mapeo entre ambos formatos quedó identificado como una mejora visual para una etapa posterior.
 
-## Etapa 4 — CRUD de suscripciones
+## Etapa 4.1 — CRUD de suscripciones
 
 - Pedí: queries de lectura, server actions (crear/editar/cambiar estado/eliminar),
   pantalla con tabla, búsqueda, filtros y formulario reutilizable para alta y edición.
@@ -73,3 +73,23 @@
   ver ni modificar las suscripciones del primero, ni crear las propias se
   mezcla con las del otro usuario. RLS aislando correctamente por
   auth.uid() en ambos sentidos.
+
+## Etapa 4.2 — Carga de datos de ejemplo
+
+- Pedí (datos de ejemplo): server action para insertar ~8 suscripciones
+  de muestra resolviendo categorías por nombre (sin hardcodear UUIDs),
+  validando que el usuario no tenga suscripciones previas, y reutilizando
+  calcularProximoCobro(); componente de estado vacío con botón de carga
+  y manejo de loading/error.
+- Generó bien: tests unitarios reales con mocks de Supabase verificando
+  los inserts exactos (8 filas, categorías correctas, estados variados
+  incluyendo pausada/cancelada), y tests de componente con
+  createRoot/act que confirman comportamiento real en el DOM, no solo
+  ausencia de errores.
+- Tuve que corregir (riesgo de loading infinito): SampleDataButton no
+  tenía try/catch alrededor de la llamada a loadSampleData(). Si la
+  Server Action lanzaba una excepción no controlada (caída de red, error
+  inesperado de Supabase), el estado de loading quedaba en true para
+  siempre, sin mostrar ningún mensaje de error al usuario. Agregué
+  try/catch/finally para garantizar que el loading se resetee y se
+  muestre un mensaje de error genérico en cualquier escenario de fallo.
