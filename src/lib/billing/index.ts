@@ -2,6 +2,11 @@ import { addMonths, addWeeks, addYears } from 'date-fns';
 
 export type FrecuenciaBilling = 'mensual' | 'anual' | 'semanal';
 
+export type BillingHistoryInicial = {
+  fecha: string;
+  monto: number;
+};
+
 function validarFrecuencia(
   frecuencia: FrecuenciaBilling,
   contexto: 'cobro' | 'facturacion',
@@ -33,6 +38,10 @@ function redondearADosDecimales(valor: number): number {
   return Math.round(valor * 100) / 100;
 }
 
+function toDateOnly(date: Date): string {
+  return date.toISOString().slice(0, 10);
+}
+
 export function calcularProximoCobro(
   fechaInicio: Date,
   frecuencia: FrecuenciaBilling,
@@ -47,6 +56,28 @@ export function calcularProximoCobro(
   }
 
   return proximoCobro;
+}
+
+export function generarBillingHistoryInicial(
+  fechaInicio: Date,
+  frecuencia: FrecuenciaBilling,
+  monto: number,
+  hoy = new Date(),
+): BillingHistoryInicial[] {
+  validarFrecuencia(frecuencia, 'facturacion');
+
+  const filas: BillingHistoryInicial[] = [];
+  let fechaCiclo = new Date(fechaInicio);
+
+  while (fechaCiclo.getTime() <= hoy.getTime()) {
+    filas.push({
+      fecha: toDateOnly(fechaCiclo),
+      monto,
+    });
+    fechaCiclo = avanzarFecha(fechaCiclo, frecuencia);
+  }
+
+  return filas;
 }
 
 export function normalizarAMensual(

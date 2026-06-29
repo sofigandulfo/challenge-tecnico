@@ -1,6 +1,10 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { calcularProximoCobro, normalizarAMensual } from './index';
+import {
+  calcularProximoCobro,
+  generarBillingHistoryInicial,
+  normalizarAMensual,
+} from './index';
 
 describe('calcularProximoCobro', () => {
   afterEach(() => {
@@ -69,5 +73,50 @@ describe('normalizarAMensual', () => {
     expect(() => normalizarAMensual(10, 'diaria' as 'mensual')).toThrow(
       'Frecuencia de facturacion invalida',
     );
+  });
+});
+
+describe('generarBillingHistoryInicial', () => {
+  it('genera una fila por cada ciclo mensual ya ocurrido desde la fecha de inicio', () => {
+    const resultado = generarBillingHistoryInicial(
+      new Date('2025-01-15T00:00:00.000Z'),
+      'mensual',
+      12.99,
+      new Date('2025-05-15T12:00:00.000Z'),
+    );
+
+    expect(resultado).toEqual([
+      { fecha: '2025-01-15', monto: 12.99 },
+      { fecha: '2025-02-15', monto: 12.99 },
+      { fecha: '2025-03-15', monto: 12.99 },
+      { fecha: '2025-04-15', monto: 12.99 },
+      { fecha: '2025-05-15', monto: 12.99 },
+    ]);
+  });
+
+  it('no genera filas cuando la fecha de inicio todavia no ocurrio', () => {
+    const resultado = generarBillingHistoryInicial(
+      new Date('2025-06-01T00:00:00.000Z'),
+      'mensual',
+      20,
+      new Date('2025-05-15T12:00:00.000Z'),
+    );
+
+    expect(resultado).toEqual([]);
+  });
+
+  it('genera filas semanales solo para ciclos ya vencidos', () => {
+    const resultado = generarBillingHistoryInicial(
+      new Date('2025-03-01T00:00:00.000Z'),
+      'semanal',
+      5,
+      new Date('2025-03-15T12:00:00.000Z'),
+    );
+
+    expect(resultado).toEqual([
+      { fecha: '2025-03-01', monto: 5 },
+      { fecha: '2025-03-08', monto: 5 },
+      { fecha: '2025-03-15', monto: 5 },
+    ]);
   });
 });
