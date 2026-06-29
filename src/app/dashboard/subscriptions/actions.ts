@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache';
 
 import { mapAuthError } from '@/lib/auth-errors';
+import { generarBillingHistoryInicial } from '@/lib/billing';
 import { buildSubscriptionPayload } from '@/lib/subscriptions/form';
 import { createClient } from '@/lib/supabase/server';
 import type { ActionResult, Subscription } from '@/types';
@@ -15,9 +16,12 @@ function mapSupabaseError(message: string): string {
   return mapAuthError(message);
 }
 
-function revalidateSubscriptionViews(): void {
+function revalidateSubscriptionViews(id?: string): void {
   revalidatePath('/dashboard/subscriptions');
   revalidatePath('/dashboard');
+  if (id) {
+    revalidatePath(`/dashboard/subscriptions/${id}`);
+  }
 }
 
 export async function createSubscription(
@@ -44,14 +48,40 @@ export async function createSubscription(
     return { success: false, error: 'Inicia sesion para continuar.' };
   }
 
-  const { error } = await supabase.from('subscriptions').insert({
-    ...subscriptionData,
-    user_id: user.id,
-    estado: 'activa',
-  });
+  const { data: createdSubscription, error } = await supabase
+    .from('subscriptions')
+    .insert({
+      ...subscriptionData,
+      user_id: user.id,
+      estado: 'activa',
+    })
+    .select('id')
+    .single();
 
   if (error) {
     return { success: false, error: mapSupabaseError(error.message) };
+  }
+
+  const billingHistoryRows = generarBillingHistoryInicial(
+    new Date(`${subscriptionData.fecha_inicio}T00:00:00.000Z`),
+    subscriptionData.frecuencia,
+    subscriptionData.costo,
+  ).map((row) => ({
+    subscription_id: createdSubscription.id,
+    ...row,
+  }));
+
+  if (billingHistoryRows.length > 0) {
+    const { error: billingHistoryError } = await supabase
+      .from('billing_history')
+      .insert(billingHistoryRows);
+
+    if (billingHistoryError) {
+      return {
+        success: false,
+        error: mapSupabaseError(billingHistoryError.message),
+      };
+    }
   }
 
   revalidateSubscriptionViews();
@@ -98,7 +128,7 @@ export async function updateSubscription(
     return { success: false, error: mapSupabaseError(error.message) };
   }
 
-  revalidateSubscriptionViews();
+  revalidateSubscriptionViews(id);
   return { success: true };
 }
 
@@ -120,7 +150,7 @@ export async function updateSubscriptionStatus(
     return { success: false, error: mapSupabaseError(error.message) };
   }
 
-  revalidateSubscriptionViews();
+  revalidateSubscriptionViews(id);
   return { success: true };
 }
 
@@ -132,6 +162,6 @@ export async function deleteSubscription(id: string): Promise<ActionResult> {
     return { success: false, error: mapSupabaseError(error.message) };
   }
 
-  revalidateSubscriptionViews();
+  revalidateSubscriptionViews(id);
   return { success: true };
 }

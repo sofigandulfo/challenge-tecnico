@@ -3,7 +3,11 @@
 import { revalidatePath } from 'next/cache';
 import { redirect } from "next/navigation";
 
-import { calcularProximoCobro } from '@/lib/billing';
+import {
+  calcularProximoCobro,
+  generarBillingHistoryInicial,
+  type FrecuenciaBilling,
+} from '@/lib/billing';
 import { createClient } from "@/lib/supabase/server";
 import type { ActionResult, Subscription } from '@/types';
 
@@ -14,6 +18,13 @@ type SampleSubscription = Pick<
   categoryName: string;
   monthsAgo: number;
   dayOffset: number;
+};
+
+type InsertedSampleSubscription = {
+  id: string;
+  costo: number | string;
+  frecuencia: FrecuenciaBilling;
+  fecha_inicio: string;
 };
 
 const SAMPLE_SUBSCRIPTIONS: SampleSubscription[] = [
@@ -186,10 +197,36 @@ export async function loadSampleData(): Promise<ActionResult> {
     };
   });
 
-  const { error: insertError } = await supabase.from('subscriptions').insert(rows);
+  const { data: insertedSubscriptions, error: insertError } = await supabase
+    .from('subscriptions')
+    .insert(rows)
+    .select('id, nombre, costo, frecuencia, fecha_inicio');
 
   if (insertError) {
     return { success: false, error: insertError.message };
+  }
+
+  const billingHistoryRows = (
+    (insertedSubscriptions ?? []) as InsertedSampleSubscription[]
+  ).flatMap((subscription) =>
+    generarBillingHistoryInicial(
+      new Date(`${subscription.fecha_inicio}T00:00:00.000Z`),
+      subscription.frecuencia,
+      Number(subscription.costo),
+    ).map((row) => ({
+      subscription_id: subscription.id,
+      ...row,
+    })),
+  );
+
+  if (billingHistoryRows.length > 0) {
+    const { error: billingHistoryError } = await supabase
+      .from('billing_history')
+      .insert(billingHistoryRows);
+
+    if (billingHistoryError) {
+      return { success: false, error: billingHistoryError.message };
+    }
   }
 
   revalidatePath('/dashboard');

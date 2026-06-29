@@ -1,5 +1,6 @@
 "use client";
 
+import Link from 'next/link';
 import { useMemo, useState, useTransition } from 'react';
 import { Ban, Pause, Pencil, Play, Plus, Trash2 } from 'lucide-react';
 
@@ -248,7 +249,12 @@ export function SubscriptionsClient({
                 return (
                   <TableRow key={subscription.id}>
                     <TableCell className="font-medium">
-                      {subscription.nombre}
+                      <Link
+                        href={`/dashboard/subscriptions/${subscription.id}`}
+                        className="hover:underline"
+                      >
+                        {subscription.nombre}
+                      </Link>
                     </TableCell>
                     <TableCell>
                       {subscription.category ? (
