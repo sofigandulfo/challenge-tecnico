@@ -23,10 +23,7 @@ type QueryResult = {
 class SupabaseQueryBuilder {
   calls: Array<{ method: string; args: unknown[] }> = [];
 
-  constructor(
-    private readonly table: string,
-    private readonly results: Record<string, QueryResult>,
-  ) {}
+  constructor(private readonly result: QueryResult) {}
 
   select(...args: unknown[]) {
     this.calls.push({ method: 'select', args });
@@ -40,19 +37,85 @@ class SupabaseQueryBuilder {
 
   in(...args: unknown[]) {
     this.calls.push({ method: 'in', args });
-    return Promise.resolve(this.results[this.table]);
+    return Promise.resolve(this.result);
   }
 
   limit(...args: unknown[]) {
     this.calls.push({ method: 'limit', args });
-    return Promise.resolve(this.results[this.table]);
+    return Promise.resolve(this.result);
   }
 
   insert(...args: unknown[]) {
     this.calls.push({ method: 'insert', args });
-    return Promise.resolve(this.results[this.table]);
+    return this;
+  }
+
+  then(
+    resolve: (value: QueryResult) => void,
+    reject?: (reason: unknown) => void,
+  ) {
+    return Promise.resolve(this.result).then(resolve, reject);
   }
 }
+
+const insertedSampleSubscriptions = [
+  {
+    id: 'sub-netflix',
+    nombre: 'Netflix',
+    costo: 13.99,
+    frecuencia: 'mensual',
+    fecha_inicio: '2026-05-24',
+  },
+  {
+    id: 'sub-spotify',
+    nombre: 'Spotify',
+    costo: 10.99,
+    frecuencia: 'mensual',
+    fecha_inicio: '2026-04-30',
+  },
+  {
+    id: 'sub-aws',
+    nombre: 'AWS',
+    costo: 45,
+    frecuencia: 'mensual',
+    fecha_inicio: '2026-03-19',
+  },
+  {
+    id: 'sub-copilot',
+    nombre: 'GitHub Copilot',
+    costo: 10,
+    frecuencia: 'mensual',
+    fecha_inicio: '2026-05-04',
+  },
+  {
+    id: 'sub-notion',
+    nombre: 'Notion',
+    costo: 8,
+    frecuencia: 'mensual',
+    fecha_inicio: '2026-04-26',
+  },
+  {
+    id: 'sub-headspace',
+    nombre: 'Headspace',
+    costo: 70,
+    frecuencia: 'anual',
+    fecha_inicio: '2026-03-29',
+  },
+  {
+    id: 'sub-disney',
+    nombre: 'Disney+',
+    costo: 13.99,
+    frecuencia: 'mensual',
+    fecha_inicio: '2026-05-15',
+  },
+  {
+    id: 'sub-google-one',
+    nombre: 'Google One',
+    costo: 2.99,
+    frecuencia: 'mensual',
+    fecha_inicio: '2026-05-07',
+  },
+];
 
 function createSupabase({
   user = { id: 'user-1' },
@@ -71,10 +134,6 @@ function createSupabase({
   categories?: Array<{ id: string; nombre: string }>;
 } = {}) {
   const builders: Record<string, SupabaseQueryBuilder[]> = {};
-  const results = {
-    subscriptions: { data: existingSubscriptions, error: null },
-    categories: { data: categories, error: null },
-  };
 
   const supabase = {
     auth: {
@@ -84,7 +143,16 @@ function createSupabase({
       }),
     },
     from: vi.fn((table: string) => {
-      const builder = new SupabaseQueryBuilder(table, results);
+      const tableBuilders = builders[table] ?? [];
+      const result =
+        table === 'subscriptions' && tableBuilders.length === 0
+          ? { data: existingSubscriptions, error: null }
+          : table === 'subscriptions'
+            ? { data: insertedSampleSubscriptions, error: null }
+            : table === 'categories'
+              ? { data: categories, error: null }
+              : { error: null };
+      const builder = new SupabaseQueryBuilder(result);
       builders[table] = [...(builders[table] ?? []), builder];
       return builder;
     }),
@@ -193,6 +261,29 @@ describe('loadSampleData', () => {
     expect(insertedRows.every((row) => row.proximo_cobro > '2026-06-27')).toBe(
       true,
     );
+    expect(builders.subscriptions[1].calls[1]).toEqual({
+      method: 'select',
+      args: ['id, nombre, costo, frecuencia, fecha_inicio'],
+    });
+    expect(builders.billing_history[0].calls).toEqual([
+      {
+        method: 'insert',
+        args: [
+          expect.arrayContaining([
+            {
+              subscription_id: 'sub-copilot',
+              fecha: '2026-05-04',
+              monto: 10,
+            },
+            {
+              subscription_id: 'sub-copilot',
+              fecha: '2026-06-04',
+              monto: 10,
+            },
+          ]),
+        ],
+      },
+    ]);
     expect(mocks.revalidatePath).toHaveBeenCalledWith('/dashboard');
     expect(mocks.revalidatePath).toHaveBeenCalledWith(
       '/dashboard/subscriptions',
