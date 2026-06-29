@@ -93,3 +93,38 @@
   siempre, sin mostrar ningún mensaje de error al usuario. Agregué
   try/catch/finally para garantizar que el loading se resetee y se
   muestre un mensaje de error genérico en cualquier escenario de fallo.
+
+  ## Etapa 5 — Detalle de suscripción e historial de cobros
+
+- Pedí: query de detalle por id respetando RLS, query de historial de
+  cobros ordenado por fecha descendente, pantalla de detalle con
+  notFound() para suscripciones inexistentes o de otro usuario, link de
+  navegación desde la tabla de listado.
+- Generó bien: separación clara de queries, reutilización del mismo
+  SubscriptionForm para editar desde el detalle (sin duplicar el
+  formulario), normalización de tipos numéricos (costo/monto vienen como
+  string de Postgres y se castean a number de forma consistente).
+- Decisión de diseño: como `billing_history` no se
+  llena automáticamente con ningún proceso real (la app no procesa pagos),
+  se generan retroactivamente las filas de historial correspondientes a
+  los ciclos ya transcurridos desde la fecha de inicio, tanto al crear una
+  suscripción nueva como al cargar los datos de ejemplo. Si por algún
+  motivo no hay filas en la tabla real, el detalle calcula y muestra el
+  historial "al vuelo" con generarBillingHistoryInicial() como respaldo,
+  para que la vista nunca dependa de un proceso externo que no existe.
+- Tuve que corregir (bug real, no solo estético): entrar a un id con
+  formato inválido (ej. /dashboard/subscriptions/3, que no es un UUID)
+  mostraba un error 500 genérico de Next.js en vez de la página 404
+  esperada. La causa: Postgres devuelve un error de sintaxis
+  (código 22P02, "invalid input syntax for type uuid") cuando el id no
+  tiene formato de UUID, y ese error se relanzaba sin control en vez de
+  tratarse como "no encontrado". Corregido detectando ese código de error
+  específico en getSubscriptionById y devolviendo null en ese caso,
+  preservando el relanzamiento de cualquier otro error real de Supabase.
+  Esto fue distinto de los casos anteriores (UUID válido pero inexistente,
+  o de otro usuario), que sí funcionaban bien desde el principio porque
+  ahí Supabase devuelve data: null sin error.
+- Verifiqué manualmente: navegación desde la tabla al detalle, edición
+  desde el detalle, botón de volver, y los 4 escenarios de acceso por id
+  (propio válido, ajeno válido, inexistente válido, formato inválido)
+  devolviendo el comportamiento correcto en cada caso.
