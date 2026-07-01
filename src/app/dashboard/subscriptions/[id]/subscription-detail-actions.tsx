@@ -36,11 +36,11 @@ export function SubscriptionDetailActions({
           Editar
         </Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="max-h-[90dvh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Editar suscripcion</DialogTitle>
+          <DialogTitle>Editar suscripción</DialogTitle>
           <DialogDescription>
-            Actualiza los datos del servicio seleccionado.
+            Actualizá los datos del servicio seleccionado.
           </DialogDescription>
         </DialogHeader>
         <SubscriptionForm
