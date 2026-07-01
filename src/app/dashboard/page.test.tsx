@@ -70,7 +70,7 @@ describe('DashboardPage', () => {
     expect(mocks.getUpcomingSubscriptions).toHaveBeenCalledWith({
       name: 'supabase-client',
     });
-    expect(html).toContain('Todavía no agregaste ninguna suscripción.');
+    expect(html).toContain('Todavía no agregaste ninguna suscripción');
     expect(html).toContain('Cargar datos de ejemplo');
     expect(html).not.toContain('Gasto mensual');
   });
