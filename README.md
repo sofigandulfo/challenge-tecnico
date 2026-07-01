@@ -1,9 +1,6 @@
 # SubTrack
 
-<!-- [TODO - Etapa 8] Reemplazar TU_USUARIO/TU_REPO por los reales y descomentar
-una vez que el workflow de CI esté configurado y haya corrido al menos una vez:
-![CI](https://github.com/TU_USUARIO/TU_REPO/actions/workflows/ci.yml/badge.svg)
--->
+![CI](https://github.com/sofigandulfo/challenge-tecnico/actions/workflows/ci.yml/badge.svg)
 
 ## ¿Qué es SubTrack?
 
@@ -27,7 +24,7 @@ en la base de datos.
 - Dashboard con gasto mensual total, gráfico de gasto por categoría y
   lista de próximos vencimientos (7 días)
 - Gestión de suscripciones: crear, editar, pausar, cancelar y eliminar,
-  con búsqueda y filtros por categoría/estado
+  con búsqueda y filtros por categoría y estado
 - Vista de detalle de cada suscripción con su historial de cobros
 - Carga de datos de ejemplo con un click, para ver la app funcionando
   sin necesidad de ingresar datos a mano
@@ -57,21 +54,44 @@ reutilizarla tanto en server actions como en cualquier otra capa futura.
 
 ```
 src/
-├── app/                    # Rutas, layouts y composición de pantallas
-├── lib/
-│   ├── billing/             # Lógica pura de negocio (testeada con Vitest)
-│   └── supabase/            # Clientes Supabase (server/browser) y helpers de sesión
-├── features/
-│   ├── subscriptions/       # Acciones, queries, tipos y componentes de suscripciones
-│   └── dashboard/            # Componentes y cálculos de presentación del dashboard
-├── components/ui/           # Componentes shadcn/ui
-└── test/                    # Configuración y utilidades de Vitest
+├── app/                         # Rutas, layouts, server actions y estados de carga (Next.js App Router)
+│   ├── auth/                    # Callback de confirmación de Supabase Auth
+│   ├── dashboard/
+│   │   ├── subscriptions/
+│   │   │   ├── [id]/            # Ruta de detalle de una suscripción
+│   │   │   ├── actions.ts       # Server actions (crear, editar, pausar, eliminar)
+│   │   │   ├── page.tsx
+│   │   │   └── loading.tsx
+│   │   ├── actions.ts           # Server actions del dashboard (ej. cargar datos de ejemplo)
+│   │   ├── dashboard-nav.tsx
+│   │   ├── layout.tsx
+│   │   └── page.tsx
+│   ├── login/                   # Login y registro
+│   ├── globals.css
+│   ├── layout.tsx
+│   └── page.tsx
+├── features/                    # Componentes de UI reutilizables, agrupados por dominio
+│   ├── subscriptions/           # Formulario y listado/tabla de suscripciones
+│   └── dashboard/               # KPIs, gráfico de gasto por categoría, próximos vencimientos
+├── lib/                         # Lógica de negocio y acceso a datos, sin JSX
+│   ├── billing/                 # Cálculo de próximo cobro y normalización a valor mensual (testeada con Vitest)
+│   ├── subscriptions/           # Queries a Supabase y validación/armado de payload de formulario
+│   ├── supabase/                # Clientes Supabase (server/browser) y helpers de sesión
+│   ├── auth-errors.ts
+│   └── utils.ts
+├── components/ui/               # Componentes shadcn/ui
+└── types/
+    └── index.ts                 # Tipos compartidos del dominio
+
+middleware.ts                    # Protección de rutas / refresh de sesión Supabase
 
 supabase/
-└── migrations/              # Esquema SQL, políticas RLS y seed de categorías
+└── migrations/                    # Esquema SQL, políticas RLS y seed de categorías
+
 
 docs/
-└── design.md                # Documento de diseño y arquitectura detallado
+├── design.md               # Documento de diseño y arquitectura detallado
+└── ai-log.md               # Bitácora de uso de IA durante el desarrollo
 ```
 
 ## Modelo de datos
@@ -120,35 +140,45 @@ flowchart LR
 
 La tabla `subscriptions` tiene RLS habilitado con políticas que
 restringen cada operación (`select`, `insert`, `update`, `delete`) a
-filas donde `auth.uid() = user_id`. La tabla `billing_history` también
-tendrá RLS habilitado: sus políticas validarán con `exists (...)` contra
-`subscriptions` para permitir acceso solo cuando el historial pertenezca
-a una suscripción del usuario autenticado.
-`categories` es un catálogo de lectura pública, sin necesidad de
-restricción por usuario.
+filas donde `auth.uid() = user_id`. La tabla `billing_history` tiene
+RLS habilitado con políticas que validan con `exists (...)` contra
+`subscriptions`, permitiendo acceso solo cuando el historial pertenezca
+a una suscripción del usuario autenticado. `categories` es un catálogo
+de lectura pública sin restricción por usuario.
 
-<!-- [TODO - Etapa 6] Completar esta sección con cómo probaste esto en
-la práctica. Ejemplo: "Se verificó manualmente creando un segundo
-usuario de prueba y confirmando que no puede ver ni modificar las
-suscripciones del primero, ni mediante la UI ni llamando directamente
-a la API de Supabase." -->
+Se verificó manualmente registrando un segundo usuario de prueba y
+confirmando que no puede ver ni modificar las suscripciones del primero,
+ni mediante la UI ni llamando directamente a la API de Supabase con el
+token del segundo usuario.
 
 ## Herramientas de IA utilizadas
 
-<!-- [TODO - completar a medida que avanzás, no dejar para el final]
+El desarrollo usó **Claude** para diseño de arquitectura y documentación, y **GitHub Copilot / Codex** para generación de código (scaffolding, server actions, componentes, tests).
 
-Ejemplo de qué incluir acá (sé específico, esto es lo que más pesa
-en la evaluación del challenge):
+El flujo de trabajo fue iterativo: Claude definía el plan, Codex generaba el código, y yo definía las
+decisiones de diseño, auditaba cada
+entrega antes de integrarla y corregía lo que no funcionaba y
+descartana lo que la IA no resolvió bien.
 
-- Qué herramienta usaste para cada parte (ej: Codex para scaffolding
-  inicial y server actions, Claude para diseño de arquitectura y
-  documentación)
-- Qué te generó bien y aceleró de verdad
-- Qué tuviste que corregir o auditar manualmente (esto es lo más
-  importante de mostrar: tu criterio técnico sobre la salida de la IA)
-- Algún ejemplo concreto de un bug o decisión que la IA no resolvió
-  bien y cómo lo solucionaste vos
--->
+**Ejemplos concretos de correcciones sobre salidas de IA:**
+
+- **globals.css con import roto:** Codex generó `@import "shadcn/tailwind.css"`, que no existe. Rompía la generación de CSS sin tirar error explícito, solo un 404 silencioso en `/_next/static/css`. Lo detecté revisando el log del dev server y lo eliminé.
+
+- **Mismatch Tailwind v3/v4:** Los componentes de shadcn generados usaban sintaxis de Tailwind v4 (`data-active:`, `group-data-horizontal/`) incompatible con v3 instalado. Intenté migrar a v4 pero generó conflictos en node_modules. Solución: mantener v3 y reescribir los componentes afectados con sintaxis estándar (`data-[state=active]:`).
+
+- **signOut con tipo de retorno incorrecto:** Codex generó `signOut` retornando `Promise<ActionResult>`, pero Next.js espera `void` en form actions directas. Cambié el tipo y eliminé el return.
+
+- **Falta de ruta /auth/callback:** Sin esta ruta, el registro redirigía a `/?code=...` en vez de al dashboard. Codex no la incluyó en el scaffolding inicial; la agregué con el handler de `exchangeCodeForSession`.
+
+- **GRANTs faltantes en el esquema SQL:** La migración habilitaba RLS y creaba las policies, pero faltaban los `GRANT` para el rol `authenticated`. Resultado: `permission denied for table subscriptions` al primer request real. Detectado integrando el dashboard con datos reales.
+
+- **Búsqueda con server action en cada tecla:** Codex implementó la búsqueda de suscripciones disparando una Server Action por cada keystroke, generando decenas de requests consecutivos. Lo corregí moviendo el filtro a `useState + .filter()` client-side sobre los datos ya cargados.
+
+- **Hydration error en DropdownMenu:** `ActionsMenu` definido como componente inline causaba mismatch de hydration porque Radix genera IDs de SVG random en SSR que no coinciden en cliente. Solución: mount guard con `useState(false) + useEffect`.
+
+- **Tests de billing demasiado débiles:** Los tests generados solo verificaban "es una fecha futura" con `Date.now()`, sin detectar bugs en el cálculo real. Los reescribí usando `vi.setSystemTime()` para fijar una fecha conocida y verificar el resultado exacto esperado.
+
+- **DonutChart colors en Tremor v3:** Tremor no acepta hex en la prop `colors`; si no reconoce el valor cae a negro. Solución: `COLOR_MAP` hex→nombre-Tremor para el donut, y `TREMOR_TO_HEX` inverso en el `customTooltip` para recuperar el hex original al renderizar.
 
 ## Tests
 
@@ -156,21 +186,28 @@ en la evaluación del challenge):
 npm run test
 ```
 
-Los tests cubrirán la lógica pura de `src/lib/billing`:
-- `calcularProximoCobro` para frecuencias mensual, anual y semanal,
-  incluyendo casos límite (fin de mes, años bisiestos)
-- `normalizarAMensual` para las tres frecuencias soportadas
-- Manejo de frecuencia inválida
+El proyecto tiene tests unitarios para la lógica pura de `src/lib/billing`
+y tests de componentes y cálculos del dashboard.
 
-<!-- [TODO - Etapa 2] Actualizar con la cantidad real de tests una vez escritos,
-ej: "8 tests, todos passing" -->
+Áreas cubiertas:
+- `calcularProximoCobro` para frecuencias mensual, anual y semanal,
+  incluyendo casos límite con `vi.setSystemTime()` para verificar
+  resultados exactos
+- `normalizarAMensual` para las tres frecuencias
+- Manejo de frecuencia inválida
+- `calcularGastoMensualTotal` y `calcularGastoPorCategoria` con casos
+  borde (sin suscripciones activas, sin categoría asignada)
+- Componentes de presentación: `KpiCard`, `ProximosVencimientos`,
+  `EmptyDashboard`, wrappers de Radix UI
 
 ## CI/CD
 
-<!-- [TODO - Etapa 8, opcional] Descomentar y completar una vez configurado:
+Cada push a `main` ejecuta automáticamente lint, tests y build de
+producción vía GitHub Actions (ver `.github/workflows/ci.yml`).
 
-Cada push a `main` ejecuta automáticamente lint y tests vía GitHub
-Actions (ver `.github/workflows/ci.yml`). -->
+El build de producción corre con las variables de entorno de Supabase
+inyectadas como secrets del repositorio, verificando que la app compila
+correctamente en un entorno limpio antes de cada merge.
 
 ## Instalación y ejecución local
 
@@ -182,8 +219,8 @@ Actions (ver `.github/workflows/ci.yml`). -->
 
 1. Clonar el repositorio
    ```bash
-   git clone https://github.com/TU_USUARIO/TU_REPO.git
-   cd TU_REPO
+   git clone https://github.com/sofigandulfo/challenge-tecnico.git
+   cd challenge-tecnico
    ```
 
 2. Instalar dependencias
@@ -201,7 +238,8 @@ Actions (ver `.github/workflows/ci.yml`). -->
 4. Aplicar las migraciones
    - Ir al SQL Editor del proyecto de Supabase
    - Ejecutar el contenido de `supabase/migrations/` en orden
-   - Esto crea las tablas, las políticas RLS y el seed de categorías
+   - Esto crea las tablas, las políticas RLS, los GRANTs necesarios
+     y el seed de categorías
 
 5. Correr el proyecto en modo desarrollo
    ```bash
@@ -221,18 +259,25 @@ Actions (ver `.github/workflows/ci.yml`). -->
 - **Sin notificaciones, pagos reales, multi-moneda ni cuentas
   compartidas:** fuera del alcance deliberado de este proyecto, para
   mantener el foco en un sistema acotado, terminado y bien ejecutado.
+- **Historial de cobros generado retroactivamente:** como la app no
+  procesa pagos reales, el historial se calcula a partir de la fecha
+  de inicio y la frecuencia. Si no hay filas en la tabla, se genera
+  al vuelo como respaldo para que la vista nunca quede vacía por un
+  proceso externo que no existe.
 
 ## Demo desplegada
 
-<!-- [TODO - Etapa 9] Completar al deployar:
-🔗 [Link a la demo en Vercel]
+🔗 [https://challenge-tecnico.vercel.app](https://challenge-tecnico.vercel.app)
 
-Para probar: registrate con cualquier email y usá el botón
-"Cargar datos de ejemplo" en el dashboard vacío para ver la app
-funcionando con datos realistas sin cargar nada a mano. -->
+Para probar: registrate con cualquier email y contraseña, y usá el
+botón **"Cargar datos de ejemplo"** en el dashboard vacío para ver la
+app funcionando con datos realistas sin cargar nada a mano.
 
 ## Documentación adicional
 
 - [`docs/design.md`](./docs/design.md) — documento de diseño y
   arquitectura detallado, con el modelo de datos completo, las fases
   de implementación y las decisiones técnicas justificadas.
+- [`docs/ai-log.md`](./docs/ai-log.md) — bitácora completa del uso
+  de IA durante el desarrollo, con ejemplos concretos de correcciones
+  y decisiones tomadas sobre las salidas generadas.
