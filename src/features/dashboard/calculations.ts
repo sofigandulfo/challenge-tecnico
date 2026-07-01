@@ -20,7 +20,7 @@ export type GastoPorCategoria = {
 };
 
 const CATEGORIA_FALLBACK = {
-  nombre: 'Sin categoria',
+  nombre: 'Sin categoría',
   color: '#94A3B8',
 };
 

@@ -172,7 +172,7 @@ export async function loadSampleData(): Promise<ActionResult> {
   if (categoryIdByName.size !== categoryNames.length) {
     return {
       success: false,
-      error: 'No se encontraron todas las categorias de ejemplo',
+      error: 'No se encontraron todas las categorías de ejemplo',
     };
   }
 

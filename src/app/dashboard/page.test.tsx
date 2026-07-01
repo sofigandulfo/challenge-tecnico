@@ -70,7 +70,7 @@ describe('DashboardPage', () => {
     expect(mocks.getUpcomingSubscriptions).toHaveBeenCalledWith({
       name: 'supabase-client',
     });
-    expect(html).toContain('Todavia no hay suscripciones');
+    expect(html).toContain('Todavía no agregaste ninguna suscripción');
     expect(html).toContain('Cargar datos de ejemplo');
     expect(html).not.toContain('Gasto mensual');
   });
@@ -87,6 +87,6 @@ describe('DashboardPage', () => {
     expect(html).toContain('$10.00');
     expect(html).toContain('Software');
     expect(html).toContain('GitHub');
-    expect(html).not.toContain('Todavia no hay suscripciones');
+    expect(html).not.toContain('Todavía no agregaste ninguna suscripción.');
   });
 });

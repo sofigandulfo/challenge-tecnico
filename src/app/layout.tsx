@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "SaaS-Track",
-  description: "Esqueleto inicial del proyecto SaaS-Track.",
+  title: "SubTrack",
+  description: "Claridad y control sobre tus gastos en suscripciones.",
 };
 
 export default function RootLayout({

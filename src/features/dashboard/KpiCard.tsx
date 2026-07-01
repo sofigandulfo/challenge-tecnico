@@ -7,14 +7,17 @@ type KpiCardProps = {
 
 export function KpiCard({ label, value }: KpiCardProps) {
   return (
-    <Card>
+    <Card className="border-primary/15 bg-[hsl(var(--primary)/0.045)] shadow-[0_8px_24px_rgba(52,92,114,0.08)]">
       <CardHeader className="pb-3">
-        <CardTitle className="text-sm font-medium text-muted-foreground">
-          {label}
-        </CardTitle>
+        <CardTitle className='tracking-widest text-xs'>{label}</CardTitle>
       </CardHeader>
-      <CardContent>
-        <p className="text-3xl font-semibold tracking-normal">{value}</p>
+      <CardContent className="space-y-2">
+        <p className="text-6xl font-semibold tracking-normal text-foreground tabular-nums">
+          {value}
+        </p>
+        <p className="text-sm text-muted-foreground">
+          Estimado según suscripciones activas.
+        </p>
       </CardContent>
     </Card>
   );

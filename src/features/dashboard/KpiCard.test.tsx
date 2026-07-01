@@ -12,6 +12,7 @@ describe('KpiCard', () => {
 
     expect(html).toContain('Gasto mensual');
     expect(html).toContain('$145.00');
-    expect(html).toContain('text-3xl');
+    expect(html).toContain('text-6xl');
+    expect(html).toContain('Estimado según suscripciones activas.');
   });
 });

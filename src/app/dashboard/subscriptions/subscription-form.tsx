@@ -89,13 +89,13 @@ export function SubscriptionForm({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="categoria_id">Categoria</Label>
+            <Label htmlFor="categoria_id">Categoría</Label>
             <Select
               id="categoria_id"
               name="categoria_id"
               defaultValue={subscription?.categoria_id ?? ''}
             >
-              <option value="">Sin categoria</option>
+              <option value="">Sin categoría</option>
               {categories.map((category) => (
                 <option key={category.id} value={category.id}>
                   {category.nombre}
@@ -127,7 +127,7 @@ export function SubscriptionForm({
       </div>
 
       {state?.success === false && (
-        <p className="text-sm text-red-500" role="alert">
+        <p className="text-sm text-destructive" role="alert">
           {state.error}
         </p>
       )}

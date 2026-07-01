@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import type { CSSProperties } from 'react';
 
 import { SubscriptionDetailActions } from '@/app/dashboard/subscriptions/[id]/subscription-detail-actions';
 import { Badge } from '@/components/ui/badge';
@@ -40,10 +41,25 @@ const dateFormatter = new Intl.DateTimeFormat('es-AR', {
 });
 
 const statusClassName: Record<Subscription['estado'], string> = {
-  activa: 'border-green-200 bg-green-50 text-green-700',
-  pausada: 'border-yellow-200 bg-yellow-50 text-yellow-800',
-  cancelada: 'border-slate-200 bg-slate-100 text-slate-600',
+  activa:
+    '[border-color:hsl(var(--success)/0.22)] [background-color:hsl(var(--success)/0.08)] [color:hsl(var(--success))]',
+  pausada:
+    '[border-color:hsl(var(--warning)/0.26)] [background-color:hsl(var(--warning)/0.1)] [color:hsl(var(--warning))]',
+  cancelada:
+    '[border-color:hsl(var(--neutral-badge)/0.2)] [background-color:hsl(var(--neutral-badge)/0.08)] [color:hsl(var(--neutral-badge))]',
 };
+
+function categoryBadgeStyle(color?: string): CSSProperties {
+  if (!color) {
+    return {};
+  }
+
+  return {
+    borderColor: `${color}2E`,
+    backgroundColor: `${color}12`,
+    color,
+  };
+}
 
 function formatDate(date: string): string {
   return dateFormatter.format(new Date(`${date}T00:00:00`));
@@ -110,12 +126,12 @@ export default async function SubscriptionDetailPage({
   );
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="space-y-1">
-          <h1 className="text-2xl font-semibold">{subscription.nombre}</h1>
+          <h1 className="text-3xl font-semibold">{subscription.nombre}</h1>
           <p className="text-sm text-muted-foreground">
-            Detalle de la suscripcion y cobros registrados.
+            Detalle de la suscripción y cobros registrados.
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -129,11 +145,11 @@ export default async function SubscriptionDetailPage({
         </div>
       </div>
 
-      <section className="space-y-4">
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <section className="rounded-xl border bg-card p-5 shadow-[0_1px_2px_rgba(31,41,55,0.04)] sm:p-6">
+        <div className="grid grid-cols-2 gap-5 lg:grid-cols-3">
           <div>
             <p className="text-sm text-muted-foreground">Costo</p>
-            <p className="font-medium">
+            <p className="font-medium tabular-nums">
               {currencyFormatter.format(subscription.costo)}
             </p>
           </div>
@@ -144,19 +160,16 @@ export default async function SubscriptionDetailPage({
             </p>
           </div>
           <div>
-            <p className="text-sm text-muted-foreground">Categoria</p>
+            <p className="text-sm text-muted-foreground">Categoría</p>
             {subscription.category ? (
               <Badge
                 variant="outline"
-                style={{
-                  borderColor: subscription.category.color,
-                  color: subscription.category.color,
-                }}
+                style={categoryBadgeStyle(subscription.category.color)}
               >
                 {subscription.category.nombre}
               </Badge>
             ) : (
-              <Badge variant="outline">Sin categoria</Badge>
+              <Badge variant="outline">Sin categoría</Badge>
             )}
           </div>
           <div>
@@ -175,8 +188,8 @@ export default async function SubscriptionDetailPage({
             </p>
           </div>
           <div>
-            <p className="text-sm text-muted-foreground">Proximo cobro</p>
-            <p className="font-medium">
+            <p className="text-sm text-muted-foreground">Próximo cobro</p>
+            <p className="font-medium tabular-nums">
               {formatDate(subscription.proximo_cobro)}
             </p>
           </div>
@@ -185,31 +198,33 @@ export default async function SubscriptionDetailPage({
         {subscription.notas && (
           <div>
             <p className="text-sm text-muted-foreground">Notas</p>
-            <p>{subscription.notas}</p>
+            <p className="text-sm leading-6">{subscription.notas}</p>
           </div>
         )}
       </section>
 
       <section className="space-y-3">
-        <h2 className="text-lg font-semibold">Historial de cobros</h2>
+        <h2 className="text-xl font-semibold">Historial de cobros</h2>
         {displayBillingHistory.length === 0 ? (
-          <p className="rounded-lg border p-4 text-sm text-muted-foreground">
+          <p className="rounded-xl border border-dashed bg-muted/40 p-5 text-sm text-muted-foreground">
             {'Todav\u00eda no hay cobros registrados para esta suscripci\u00f3n'}
           </p>
         ) : (
-          <div className="rounded-lg border">
+          <div className="overflow-hidden rounded-xl border bg-card shadow-[0_1px_2px_rgba(31,41,55,0.04)]">
             <Table>
               <TableHeader>
                 <TableRow>
                   <TableHead>Fecha</TableHead>
-                  <TableHead>Monto</TableHead>
+                  <TableHead className="text-right">Monto</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {displayBillingHistory.map((billing) => (
                   <TableRow key={billing.id}>
                     <TableCell>{formatDate(billing.fecha)}</TableCell>
-                    <TableCell>{currencyFormatter.format(billing.monto)}</TableCell>
+                    <TableCell className="text-right font-medium tabular-nums">
+                      {currencyFormatter.format(billing.monto)}
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>

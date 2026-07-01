@@ -1,9 +1,9 @@
 import { redirect } from "next/navigation";
-import Link from "next/link";
 
 import { signOut } from "@/app/dashboard/actions";
-import { Button } from "@/components/ui/button";
+import { DashboardNav } from "@/app/dashboard/dashboard-nav";
 import { createClient } from "@/lib/supabase/server";
+import { Footer } from "@/components/ui/footer";
 
 export default async function DashboardLayout({
   children,
@@ -20,31 +20,21 @@ export default async function DashboardLayout({
   }
 
   return (
-    <div className="min-h-screen">
-      <header className="border-b">
-        <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4">
-          <span className="text-sm font-medium">SaaS-Track</span>
-
-          <div className="flex items-center gap-4">
-            <nav className="flex items-center gap-3 text-sm">
-              <Link href="/dashboard" className="text-muted-foreground hover:text-foreground">
-                Dashboard
-              </Link>
-              <Link href="/dashboard/subscriptions" className="text-muted-foreground hover:text-foreground">
-                Suscripciones
-              </Link>
-            </nav>
-            <span className="text-sm text-muted-foreground">{user.email}</span>
-            <form action={signOut}>
-              <Button type="submit" variant="outline" size="sm">
-                Cerrar sesión
-              </Button>
-            </form>
-          </div>
+    <div className="flex min-h-screen flex-col bg-background">
+      <header className="relative border-b border-border bg-card/85 backdrop-blur">
+        <div className="mx-auto flex h-16 max-w-5xl items-center justify-between px-6">
+          <span className="text-sm font-semibold text-primary">
+            SubTrack
+          </span>
+          <DashboardNav email={user.email} signOutAction={signOut} />
         </div>
       </header>
 
-      <main className="mx-auto max-w-5xl px-4 py-8">{children}</main>
+      <main className="mx-auto w-full max-w-5xl flex-1 px-6 pb-12 pt-10">
+        {children}
+      </main>
+
+      <Footer />
     </div>
   );
 }

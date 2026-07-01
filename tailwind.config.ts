@@ -11,6 +11,16 @@ const config = {
     "./src/types/**/*.{ts,tsx}",
     "./node_modules/@tremor/react/dist/**/*.{js,ts,jsx,tsx}",
   ],
+  safelist: [
+    {
+      pattern:
+        /^(bg|text|fill|stroke|ring)-(cyan|emerald|amber|slate|zinc|blue|red|green|yellow|purple|pink|indigo|orange|teal|rose)-(50|100|200|300|400|500|600|700|800|900|950)$/,
+    },
+    {
+      pattern:
+        /^(bg|text|fill|stroke|ring)-(cyan|emerald|amber|slate|zinc|blue|red|green|yellow|purple|pink|indigo|orange|teal|rose)-(50|100|200|300|400|500|600|700|800|900|950)\/\d+$/,
+    },
+  ],
   theme: {
     extend: {
       fontFamily: {
@@ -34,6 +44,8 @@ const config = {
           DEFAULT: "hsl(var(--destructive))",
           foreground: "hsl(var(--destructive-foreground))",
         },
+        success: "hsl(var(--success))",
+        warning: "hsl(var(--warning))",
         muted: {
           DEFAULT: "hsl(var(--muted))",
           foreground: "hsl(var(--muted-foreground))",
