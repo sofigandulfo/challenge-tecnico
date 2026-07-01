@@ -1,8 +1,8 @@
-# SaaS-Track Design
+# SubTrack Design
 
 ## Objetivo
 
-Construir SaaS-Track, una aplicacion web simple y robusta para registrar, gestionar y visualizar suscripciones recurrentes en USD. El foco del challenge es mostrar arquitectura clara, buena UX, uso real de Supabase, TypeScript estricto, commits incrementales y una implementacion completa sin funcionalidades innecesarias.
+Construir SubTrack, una aplicacion web simple y robusta para registrar, gestionar y visualizar suscripciones recurrentes en USD. El foco del challenge es mostrar arquitectura clara, buena UX, uso real de Supabase, TypeScript estricto, commits incrementales y una implementacion completa sin funcionalidades innecesarias.
 
 ## Alcance
 
@@ -244,7 +244,7 @@ Los tests se escribiran antes de la implementacion de la logica pura.
 
 El README documentara:
 
-- Que resuelve SaaS-Track.
+- Que resuelve SubTrack.
 - Stack usado.
 - Variables de entorno necesarias.
 - Como correr el proyecto localmente.

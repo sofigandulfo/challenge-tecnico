@@ -1,13 +1,13 @@
-# SaaS-Track
+# SubTrack
 
 <!-- [TODO - Etapa 8] Reemplazar TU_USUARIO/TU_REPO por los reales y descomentar
 una vez que el workflow de CI esté configurado y haya corrido al menos una vez:
 ![CI](https://github.com/TU_USUARIO/TU_REPO/actions/workflows/ci.yml/badge.svg)
 -->
 
-## ¿Qué es SaaS-Track?
+## ¿Qué es SubTrack?
 
-SaaS-Track es una aplicación web para registrar, gestionar y visualizar
+SubTrack es una aplicación web para registrar, gestionar y visualizar
 suscripciones recurrentes (streaming, software, gimnasio, herramientas
 de trabajo, etc.) en un solo lugar.
 
