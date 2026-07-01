@@ -101,7 +101,7 @@ describe('calcularGastoPorCategoria', () => {
     ];
 
     expect(calcularGastoPorCategoria(subscriptions)).toEqual([
-      { nombre: 'Sin categoria', color: '#94A3B8', total: 10 },
+      { nombre: 'Sin categoría', color: '#94A3B8', total: 10 },
     ]);
   });
 

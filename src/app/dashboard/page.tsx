@@ -1,6 +1,5 @@
 import { EmptyDashboard } from '@/features/dashboard/EmptyDashboard';
 import { GastoPorCategoriaChart } from '@/features/dashboard/GastoPorCategoriaChart';
-import { KpiCard } from '@/features/dashboard/KpiCard';
 import { ProximosVencimientos } from '@/features/dashboard/ProximosVencimientos';
 import {
   calcularGastoMensualTotal,
@@ -32,18 +31,27 @@ export default async function DashboardPage() {
   const gastoPorCategoria = calcularGastoPorCategoria(subscriptions);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-10">
       <div className="space-y-1">
-        <h1 className="text-2xl font-semibold">Dashboard</h1>
+        <h1 className="text-3xl font-bold tracking-tight text-foreground">
+          Dashboard
+        </h1>
         <p className="text-sm text-muted-foreground">
-          Resumen de tus suscripciones y proximos cobros.
+          Resumen de tus suscripciones, categorías y próximos cobros.
         </p>
       </div>
 
-      <KpiCard
-        label="Gasto mensual"
-        value={currencyFormatter.format(gastoMensualTotal)}
-      />
+      <section>
+        <p className="mb-1 text-xs font-medium uppercase tracking-widest text-muted-foreground">
+          Gasto mensual estimado
+        </p>
+        <p className="text-6xl font-bold tracking-tight text-foreground">
+          {currencyFormatter.format(gastoMensualTotal)}
+        </p>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Basado en tus suscripciones activas
+        </p>
+      </section>
 
       <section className="grid gap-6 lg:grid-cols-2">
         <GastoPorCategoriaChart data={gastoPorCategoria} />

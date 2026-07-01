@@ -13,8 +13,8 @@ export function SampleDataButton() {
   const [error, setError] = useState<string | null>(null);
 
   async function handleLoadSampleData(): Promise<void> {
-  setIsLoading(true);
-  setError(null);
+    setIsLoading(true);
+    setError(null);
 
     try {
       const result = await loadSampleData();
@@ -42,7 +42,7 @@ export function SampleDataButton() {
         {isLoading ? 'Cargando...' : 'Cargar datos de ejemplo'}
       </Button>
       {error && (
-        <p className="text-sm text-red-500" role="alert">
+        <p className="text-sm text-destructive" role="alert">
           {error}
         </p>
       )}

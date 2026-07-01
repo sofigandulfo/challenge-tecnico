@@ -59,6 +59,21 @@ describe('ProximosVencimientos', () => {
       }),
     );
 
-    expect(html).toContain('Sin categoria');
+    expect(html).toContain('Sin categoría');
+  });
+
+  it('resalta fechas urgentes y muestra el total a pagar este mes', () => {
+    const html = renderToStaticMarkup(
+      createElement(ProximosVencimientos, {
+        subscriptions: [
+          subscription(1),
+          { ...subscription(2), costo: 25, proximo_cobro: '2026-07-20' },
+        ],
+      }),
+    );
+
+    expect(html).toContain('text-warning');
+    expect(html).toContain('Total a pagar este mes');
+    expect(html).toContain('$36.00');
   });
 });
