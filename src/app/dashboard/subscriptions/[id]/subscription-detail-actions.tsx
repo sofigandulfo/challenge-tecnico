@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Pencil } from 'lucide-react';
 
 import { updateSubscription } from '@/app/dashboard/subscriptions/actions';
-import { SubscriptionForm } from '@/app/dashboard/subscriptions/subscription-form';
+import { SubscriptionForm } from "@/features/subscriptions/subscription-form";
 import { Button } from '@/components/ui/button';
 import {
   Dialog,

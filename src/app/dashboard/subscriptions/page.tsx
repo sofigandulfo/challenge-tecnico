@@ -1,4 +1,4 @@
-import { SubscriptionsClient } from '@/app/dashboard/subscriptions/subscriptions-client';
+import { SubscriptionsClient } from "@/features/subscriptions/subscriptions-client";
 import {
   getCategories,
   getUserSubscriptions,
