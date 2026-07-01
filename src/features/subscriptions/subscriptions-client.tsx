@@ -10,7 +10,7 @@ import {
   updateSubscription,
   updateSubscriptionStatus,
 } from '@/app/dashboard/subscriptions/actions';
-import { SubscriptionForm } from '@/app/dashboard/subscriptions/subscription-form';
+import { SubscriptionForm } from "@/features/subscriptions/subscription-form";
 import {
   AlertDialog,
   AlertDialogAction,
